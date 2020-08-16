@@ -8,6 +8,7 @@
         将导致 AuthTokenFetcher 等 Bean 将不会立即初始化，定时任务就不会立即执行。可以从 afterPropertiesSet 打印时机看出来 -->
     <!-- 为什么要做父子容器呢？ 由于管理Controller层的子AC可以委托双亲 ApplicationContext去查找bean，
         所以Root ApplicationContext容器中的Bean是共享的，而子AC中的Bean却不能被管理下层Service层和DAO层的Root Application获取，从而达到上层依赖下层的纯粹性。-->
+    <!-- https://www.cnblogs.com/hafiz/p/5875740.html-->
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>

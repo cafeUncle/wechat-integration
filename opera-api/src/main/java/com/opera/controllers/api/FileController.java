@@ -1,8 +1,12 @@
 package com.opera.controllers.api;
 
+import com.opera.cron.AuthTokenFetcher;
+import com.opera.common.utils.WechatUtil;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +19,9 @@ import java.util.UUID;
 
 @RestController
 public class FileController {
+
+    @Autowired
+    AuthTokenFetcher authTokenFetcher;
 
     /**
      * 传统上传方式
@@ -66,51 +73,57 @@ public class FileController {
     }
 
     /**
-     * SpringMVC上传方式
+     * SpringMVC上传方式  传到微信素材
      */
     @RequestMapping("/uploadFile2")
     public String uploadFile2(HttpServletRequest request, MultipartFile upload) throws Exception {
         System.out.println("springmvc文件上传...");
         //上传的位置
         String path = request.getSession().getServletContext().getRealPath("/uploads/");
+
+        String originalFilename = upload.getOriginalFilename();
+        String fileName = originalFilename.substring(originalFilename.lastIndexOf(File.separator) + 1);
+
+        File file = new File(path, fileName);
+        FileUtils.copyInputStreamToFile(upload.getInputStream(), file);
+
+//        String result = WechatUtil
+//            .createMedia("image", file);
+
+        String result = WechatUtil
+                .createImage(file);
+
+        if (file.exists()) {
+            file.delete();
+        }
+
+        return result;
+    }
+
+    /**
+     * SpringMVC上传方式  存到本地
+     */
+    @RequestMapping("/uploadFile3")
+    public String uploadFile3(HttpServletRequest request, MultipartFile upload) throws Exception {
+        //上传的位置
+        String path = request.getSession().getServletContext().getRealPath("/uploads/");
         System.out.println("path:" + path);
         //判断该路径是否存在
-        File file = new File(path);
-        if (!file.exists()) {
-            file.mkdirs();
+        File directory = new File(path);
+        if (!directory.exists()) {
+            directory.mkdirs();
         }
 
         //上传文件项
         String filename = upload.getOriginalFilename();
         String uuid = UUID.randomUUID().toString().replace("-", "");
         String saveName = uuid + "_" + filename.substring(filename.lastIndexOf(File.separator) + 1);
-        upload.transferTo(new File(path, saveName));
 
-        return "success";
-    }
+        File file = new File(path, saveName);
+        upload.transferTo(file);
 
-    /**
-     * 跨服务器上传方式
-     */
-    @RequestMapping("/uploadFile3")
-    public String uploadFile3(MultipartFile upload) throws Exception {
-        System.out.println("跨服务器文件上传...");
-
-        //定义上传服务器路径
-        String path = "http://localhost:9090/Fileserver/uploads/";
-
-        //上传文件项
-        String filename = upload.getOriginalFilename();
-        String uuid = UUID.randomUUID().toString().replace("-", "");
-        String saveName = uuid + "_" + filename.substring(filename.lastIndexOf(File.separator) + 1);
-        // 创建客户端对象
-        // import com.sun.jersey.api.client.Client;
-        // import com.sun.jersey.api.client.WebResource;
-        // Client client = Client.create();
-        // // 和图片服务器进行连接
-        // WebResource webResource = client.resource(path + saveName);
-        // // 上传文件
-        // webResource.put(upload.getBytes());
+        File file2 = new File(path, saveName);
+        FileUtils.copyInputStreamToFile(upload.getInputStream(), file2);
 
         return "success";
     }

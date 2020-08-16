@@ -1,4 +1,4 @@
-package com.opera.util;
+package com.opera.common.utils;
 
 import java.security.MessageDigest;
 

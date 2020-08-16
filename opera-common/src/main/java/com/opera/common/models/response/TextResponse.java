@@ -1,4 +1,4 @@
-package com.opera.model.response;
+package com.opera.common.models.response;
 
 public class TextResponse {
 

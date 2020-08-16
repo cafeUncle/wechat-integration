@@ -1,19 +1,21 @@
 package com.opera.controllers.api;
 
 import com.opera.cron.AuthTokenFetcher;
-import com.opera.model.XmlMessageRequest;
-import com.opera.model.response.TextResponse;
+import com.opera.common.models.XmlMessageRequest;
+import com.opera.common.models.response.TextResponse;
+import com.opera.common.utils.WechatUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import com.opera.util.CyptUtil;
-import com.opera.util.NameUtil;
+import com.opera.common.utils.CyptUtil;
+import com.opera.common.utils.NameUtil;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 @RestController
-public class HelloController {
+public class ApiController {
 
     Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -24,6 +26,7 @@ public class HelloController {
 
     @GetMapping("/o")
     public String hi() {
+        logger.error("hi~");
         return authTokenFetcher.getAuthToken();
     }
 
@@ -77,5 +80,22 @@ public class HelloController {
             return TextResponse.build(o.getFromUserName(), o.getToUserName(), o.getCreateTime(), "text", responseContent);
         }
         return "success";
+    }
+
+    /**
+     * 分页查询素材列表
+     * @param type
+     * @param offset
+     * @param count
+     * @return
+     */
+    @GetMapping(value = "/medias/{type:[a-z]+}/{offset:\\d+}/{count:\\d+}")
+    public String medias(@PathVariable String type, @PathVariable int offset, @PathVariable int count) {
+        try {
+            return WechatUtil.queryMedia(type, offset, count);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "error";
+        }
     }
 }

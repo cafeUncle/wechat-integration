@@ -1,12 +1,12 @@
 package com.opera.cron;
 
+import com.alibaba.fastjson.JSON;
+import com.opera.common.utils.WechatUtil;
+import com.opera.common.utils.HttpUtils2;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import com.opera.util.HttpUtil;
-
-import java.io.IOException;
 
 @Component
 @EnableScheduling
@@ -21,19 +21,23 @@ public class AuthTokenFetcher implements InitializingBean {
      * 如果是集群部署，由于 authToken 每次获取都会更新，上次获取的值会在 5 分钟后失效，
      * 所以需要用分布式定时任务等方案处理，同时也可以做一个内存缓存。
      */
-    private static String authToken = "empty";
+    private static String authToken = null;
 
-    public String getAuthToken() {
-        return authToken;
+    public static String getAuthToken() {
+        if (authToken == null) {
+            return null;
+        }
+        return JSON.parseObject(authToken).getString("access_token");
     }
 
 //    @Scheduled(com.opera.cron = "${schedule.task.authtoken}")
     @Scheduled(fixedDelay = 3600000)
     public void fetch() {
         try {
-            authToken = HttpUtil.get(URL);
+            authToken = HttpUtils2.get(URL);
+            WechatUtil.AUTH_TOKEN = getAuthToken();
             System.out.println(authToken);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -41,6 +45,6 @@ public class AuthTokenFetcher implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
-        System.out.println("AuthTokenFetcher Init");
+        System.out.println("AuthTokenFetcher init");
     }
 }

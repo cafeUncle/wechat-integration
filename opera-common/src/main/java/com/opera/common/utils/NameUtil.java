@@ -1,4 +1,4 @@
-package com.opera.util;
+package com.opera.common.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;

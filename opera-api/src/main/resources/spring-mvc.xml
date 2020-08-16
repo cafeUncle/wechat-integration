@@ -2,13 +2,16 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:aop="http://www.springframework.org/schema/aop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
 	http://www.springframework.org/schema/beans/spring-beans.xsd
 	http://www.springframework.org/schema/context
 	http://www.springframework.org/schema/context/spring-context.xsd
 	http://www.springframework.org/schema/mvc
-	http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+	http://www.springframework.org/schema/mvc/spring-mvc.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop.xsd">
 
     <context:component-scan base-package="com.opera.controllers, com.opera.aspect"/>
     <mvc:annotation-driven/>
@@ -28,10 +31,24 @@
         <property name="suffix" value=".html"/>
     </bean>
 
+    <!-- 对 Controller 返回的视图有效，同时直接 http://localhost:8080/home.html 也可以-->
     <mvc:resources location="/html/" mapping="/**.html" />
 
     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
         <property name="maxUploadSize" value="10485760"/>
     </bean>
 
+    <mvc:interceptors>
+        <mvc:interceptor>
+<!--            <mvc:mapping path="/*"/>-->
+<!--            <mvc:exclude-mapping path="/login/*"/>-->
+            <mvc:mapping path="/page/*"/>
+            <mvc:mapping path="/get_code"/>
+            <bean class="com.opera.interceptors.WechatPageInterceptor" />
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <!-- https://cdinit.github.io/2018/05/23/controller-aop/ -->
+    <!-- 切 controller 的话必须放在 mvc 里-->
+    <aop:aspectj-autoproxy />
 </beans>

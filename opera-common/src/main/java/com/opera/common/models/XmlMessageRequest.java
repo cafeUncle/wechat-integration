@@ -1,4 +1,4 @@
-package com.opera.model;
+package com.opera.common.models;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;

@@ -1,6 +1,6 @@
-package com.opera.util;
+package com.opera.common.utils;
 
-import com.opera.model.XmlMessageRequest;
+import com.opera.common.models.XmlMessageRequest;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;

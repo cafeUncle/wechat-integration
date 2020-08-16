@@ -1,4 +1,5 @@
-package com.opera.util;
+package com.opera.common.utils;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -70,6 +71,37 @@ public class HttpUtil {
     public static String post(String url, String body) throws IOException {
         return post(url, body, null);
     }
+
+    public static String postFile(String url, InputStream inputStream, String fileName, long size) throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        String BOUNDARY = "----------" + System.currentTimeMillis();
+        headers.put("content-type", "multipart/form-data; boundary=" + BOUNDARY);
+        headers.put("charset", "UTF-8");
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("--"); // 必须多两道线 这里说明下，这两个横杠是http协议要求的，用来分隔提交的参数用的，不懂的可以看看http 协议头
+        sb.append(BOUNDARY);
+        sb.append("\r\n");
+        sb.append("Content-Disposition: form-data;name=\"type\" \r\n\r\n"); //这里是参数名，参数名和值之间要用两次
+        sb.append("jpg"+"\r\n"); //参数的值
+
+        //这块是上传video是必须的参数，你们可以在这里根据文件类型做if/else 判断
+//        sb.append("--"); // 必须多两道线
+//        sb.append(BOUNDARY);
+//        sb.append("\r\n");
+//        sb.append("Content-Disposition: form-data;name=\"description\" \r\n\r\n");
+//        sb.append(j.toString()+"\r\n");
+
+        sb.append("--"); // 必须多两道线
+        sb.append(BOUNDARY);
+        sb.append("\r\n");
+        //这里是media参数相关的信息，这里是否能分开下我没有试，感兴趣的可以试试
+        sb.append("filename=\"" + fileName + "\";filelength=\"" + size + "\" \r\n");
+        sb.append("Content-Type:application/octet-stream\r\n\r\n");
+
+        return post(url, sb.toString() + streamToString(inputStream) + "\r\n--" + BOUNDARY + "--\r\n", headers);
+}
+
 
     /**
      * Post a form with parameters

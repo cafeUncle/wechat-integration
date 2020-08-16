@@ -14,18 +14,24 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * 日志切面类
+ *
+ * https://blog.csdn.net/u010173095/article/details/79549882
  */
 @Aspect
 @Component
-@Order(5)
+@Order(1)
 public class Demo1 {
 
-    private Logger logger= LoggerFactory.getLogger(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private ThreadLocal<Long> startTime=new ThreadLocal<>();
 
-
-    @Pointcut("execution(public * com.opera.controllers.*.*(..))")
+    /**
+     * .. controller包及其子包
+     *
+     * 修饰 返回 包名.类名.方法名(参数)，支持 Prefix*Suffix 如 Base*Service 的模式
+     */
+    @Pointcut("execution(public * com.opera.controllers..*.*.*(..))")
     public void webLog(){
 
     }
@@ -33,7 +39,7 @@ public class Demo1 {
     @Before(value = "webLog()")
     public void doBefore(JoinPoint point){
         startTime.set(System.currentTimeMillis());
-
+        System.out.println(122312312312L);
         logger.info("WebLogAspect.doBefore............");
         ServletRequestAttributes attributes=
                 (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -46,7 +52,7 @@ public class Demo1 {
     }
 
 
-    @AfterReturning(value = "webLog()",returning = "ret")
+    @AfterReturning(value = "webLog()", returning = "ret")
     public void doAfterReturning(Object ret){
         logger.info("WebLogAspect.doAfterReturning.............");
         logger.info("Resp: " + ret);
