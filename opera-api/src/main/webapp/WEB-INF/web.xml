@@ -21,7 +21,7 @@
     <servlet>
         <servlet-name>app-servlet</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-        <!-- 这里负责启动 spring-mvc 容器，是 spring 的子容器。Tomcat启动时，spring-mvc 并没有加载，而是第一次请求到来时才进行加载，可以通过配置 load-on-startup 使之提前-->
+        <!-- 这里负责启动 spring-mvc 容器，是 spring 的子容器。Tomcat启动时，spring-mvc 并没有加载，而是第一次请求到来时才进行加载，这样会使 AuthTokenFetcher 不会立即启动。可以通过配置 load-on-startup 使之提前-->
         <init-param>
             <param-name>contextConfigLocation</param-name>
             <!-- classpath 读本jar包下的内容，classpath* 读所有 jar 包下的内容，但只用第一个 -->
